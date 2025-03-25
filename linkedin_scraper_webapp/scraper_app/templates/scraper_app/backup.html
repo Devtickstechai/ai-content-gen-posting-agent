@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>LinkedIn Post Scraper</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        .card {
+            border-radius: 30px;
+            overflow: hidden;
+            width: 95%;
+            max-width: 700px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            padding: 1.5rem;
+        }
+
+        .status-message {
+            font-size: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        .btn-primary {
+            background-color: #4CAF50;
+            border: none;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        .form-container {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-container label {
+            font-weight: bold;
+            margin-bottom: 0.2rem;
+        }
+
+        .form-container input {
+            border-radius: 10px;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            width: 100%;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container button {
+            border-radius: 10px;
+            padding: 0.5rem;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="card shadow-lg">
+        <div class="card-header text-white text-center">
+            <h2>LinkedIn Post Scraper</h2>
+            <p class="lead">Effortlessly extract and download LinkedIn posts</p>
+        </div>
+        <div class="card-body">
+            <div class="form-container">
+                <form id="scrapeForm" method="POST" action="">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="keyword" class="form-label">Keyword:</label>
+                        {{ form.keyword }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="max_posts" class="form-label">Max Posts:</label>
+                        {{ form.max_posts }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label">LinkedIn Username:</label>
+                        {{ form.username }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">LinkedIn Password:</label>
+                        {{ form.password }}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Start Scraping</button>
+                </form>
+            </div>
+
+            <div id="status" class="status-message text-center mt-4"></div>
+
+            <a id="downloadLink" class="btn btn-success mt-3 w-100 d-none" download>Download CSV</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('scrapeForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const statusDiv = document.getElementById('status');
+            const downloadLink = document.getElementById('downloadLink');
+
+            // Step 1: Signing in
+            statusDiv.innerHTML = '<div class="spinner-border text-light" role="status"></div><p>Signing in to LinkedIn...</p>';
+
+            fetch('', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'started') {
+                        checkStatus(data.session_id);
+                    }
+                });
+
+            function checkStatus(sessionId) {
+                fetch(`/check_status/${sessionId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'in_progress') {
+                            statusDiv.innerHTML = '<div class="spinner-border text-light" role="status"></div><p>Scraping in progress...</p>';
+                            setTimeout(() => checkStatus(sessionId), 5000);
+                        } else if (data.status === 'completed') {
+                            statusDiv.innerHTML = '<p class="text-success">✅ Successfully Scraped!</p>';
+                            downloadLink.href = `/media/${data.filename}`;
+                            downloadLink.classList.remove('d-none');
+                            downloadLink.textContent = 'Download CSV';
+                        } else if (data.status === 'error') {
+                            statusDiv.innerHTML = `<p class="text-danger">❌ Error: ${data.error}</p>`;
+                        }
+                    });
+            }
+        });
+    </script>
+</body>
+
+</html>
