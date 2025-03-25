@@ -4,7 +4,7 @@
 # import pandas as pd
 
 # # Set up OpenAI client
-# client = openai.Client(api_key="sk-CKEo3D1oaqc1XM6ErPXZfEvNQiKFy35Jiip9aHqAvNT3BlbkFJK379HZS82_4giOt_2g83oT1V8dxVo514ba1phDsE8A")
+# client = openai.Client(api_key="sk-xxxxxxxxxxxxxxxxs")
 
 
 # # Initialize KeyBERT for keyword extraction
