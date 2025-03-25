@@ -3,11 +3,8 @@ import random
 from keybert import KeyBERT
 import pandas as pd
 import os
-# API_KEY = os.getenv("OPENAI_API_KEY")
 
-# # Set up OpenAI client
-# client = openai.Client(key=API_KEY)
-
+# API_KEY = ???
 
 # Initialize KeyBERT for keyword extraction
 kw_model = KeyBERT()
