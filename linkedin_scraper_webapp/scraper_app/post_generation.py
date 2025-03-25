@@ -4,7 +4,7 @@ from keybert import KeyBERT
 import pandas as pd
 import os
 
-# key = ?
+# client = openai.Client()
 
 # Initialize KeyBERT for keyword extraction
 kw_model = KeyBERT()
